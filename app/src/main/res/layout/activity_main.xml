@@ -1,90 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F4F8"
+    android:background="@drawable/background_gradient"
     android:padding="16dp"
     tools:context=".MainActivity">
 
-    <!-- Start/Stop Button -->
+    <!-- Start Button -->
     <Button
         android:id="@+id/start_btn"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:text="Start Capture"
-        android:backgroundTint="#1A237E"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/glassy_button"
+        android:elevation="6dp"
+        android:text="Start"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- TextView for displaying captured session text -->
     <TextView
         android:id="@+id/pkts_log"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#FFFFFF"
-        android:elevation="2dp"
+        android:layout_margin="12dp"
+        android:background="@drawable/glassy_textview"
+        android:elevation="4dp"
         android:gravity="center"
         android:padding="16dp"
-        android:textColor="#424242"
+        android:textColor="#FFFFFF"
         android:textIsSelectable="true"
         android:textSize="16sp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toBottomOf="@id/start_btn"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/copy_btn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/server_log" />
-
-    <!-- TextView for displaying server logs -->
-    <TextView
-        android:id="@+id/server_log"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#FFFFFF"
-        android:elevation="2dp"
-        android:gravity="start"
-        android:padding="16dp"
-        android:textColor="#424242"
-        android:textIsSelectable="true"
-        android:textSize="16sp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toBottomOf="@id/pkts_log"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/copy_btn" />
+        app:layout_constraintTop_toBottomOf="@id/start_btn" />
 
-    <!-- Copy Button to copy session text -->
+    <!-- Copy Button -->
     <Button
         android:id="@+id/copy_btn"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:backgroundTint="#00796B"
-        android:text="Copy Session"
+        android:background="@drawable/glassy_button"
+        android:elevation="6dp"
+        android:text="Copy ID"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/server_log"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/footer_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/footer_text" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pkts_log" />
 
-    <!-- Footer Text for Copyright -->
+    <!-- Footer Text -->
     <TextView
         android:id="@+id/footer_text"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="© imtaqin"
-        android:textSize="14sp"
-        android:textColor="#616161"
         android:gravity="center"
         android:padding="8dp"
+        android:text="BOT SUPER"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
