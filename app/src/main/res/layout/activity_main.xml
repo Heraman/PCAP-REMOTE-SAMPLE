@@ -4,69 +4,132 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient"
+    android:background="@drawable/dark_gradient_background"
     android:padding="16dp"
     tools:context=".MainActivity">
 
-    <!-- Start Button -->
-    <Button
-        android:id="@+id/start_btn"
+    <!-- Target App Input Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/app_input_layout"
         android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-        android:background="@drawable/glassy_button"
-        android:elevation="6dp"
+        android:layout_height="wrap_content"
+        android:hint="Target App Package Name"
+        app:hintTextColor="#8C8EFF"
+        app:boxStrokeColor="#8C8EFF"
+        app:boxBackgroundColor="#1E1E2E"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:layout_constraintEnd_toStartOf="@id/start_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/target_app_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#E0E0E0"
+            android:text="id.dana"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Start Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/start_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
         android:text="Start"
+        android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
+        app:backgroundTint="#2D2F6B"
+        app:cornerRadius="12dp"
+        app:elevation="4dp"
+        app:rippleColor="#8C8EFF"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/app_input_layout"
+        app:layout_constraintBottom_toBottomOf="@id/app_input_layout" />
+
+    <!-- Session Label and Copy Button -->
+    <TextView
+        android:id="@+id/session_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LOGS:"
+        android:textColor="#8C8EFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/app_input_layout" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/copy_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:text="Copy"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        app:backgroundTint="#2D2F6B"
+        app:cornerRadius="8dp"
+        app:elevation="2dp"
+        app:rippleColor="#8C8EFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/session_label"
+        app:layout_constraintBottom_toBottomOf="@id/session_label" />
 
     <!-- TextView for displaying captured session text -->
-    <TextView
-        android:id="@+id/pkts_log"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/log_card"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="12dp"
-        android:background="@drawable/glassy_textview"
-        android:elevation="4dp"
-        android:gravity="center"
-        android:padding="16dp"
-        android:textColor="#FFFFFF"
-        android:textIsSelectable="true"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@id/copy_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/start_btn" />
-
-    <!-- Copy Button -->
-    <Button
-        android:id="@+id/copy_btn"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:background="@drawable/glassy_button"
-        android:elevation="6dp"
-        android:text="Copy ID"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:cardBackgroundColor="#1E1E2E"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp"
         app:layout_constraintBottom_toTopOf="@id/footer_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pkts_log" />
+        app:layout_constraintTop_toBottomOf="@id/session_label">
+
+        <TextView
+            android:id="@+id/pkts_log"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fadeScrollbars="false"
+            android:fontFamily="monospace"
+            android:padding="12dp"
+            android:scrollbars="vertical"
+            android:textColor="#E0E0E0"
+            android:textIsSelectable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:longClickable="true"
+            android:textSize="12sp"
+            android:lineSpacingExtra="2dp"
+            android:gravity="top|start"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbarSize="5dp"
+            android:scrollbarThumbVertical="@android:color/darker_gray"
+            android:scrollbarTrackVertical="@android:color/transparent"
+            android:overScrollMode="always" />
+    </androidx.cardview.widget.CardView>
 
     <!-- Footer Text -->
     <TextView
         android:id="@+id/footer_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="BOT SUPER"
-        android:textColor="#FFFFFF"
-        android:textSize="12sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.15"
+        android:text="IMTAQIN.ID"
+        android:textColor="#8C8EFF"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

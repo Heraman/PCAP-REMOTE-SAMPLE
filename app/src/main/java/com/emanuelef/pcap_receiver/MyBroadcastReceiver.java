@@ -27,7 +27,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        Log.d("MyBroadcastReceiver", "onReceive " + action);
+        Log.d(TAG, "onReceive " + action);
 
         if(action.equals(MainActivity.CAPTURE_STATUS_ACTION)) {
             // Notify via the CaptureObservable
